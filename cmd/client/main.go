@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
 
 	"github.com/bootdotdev/learn-pub-sub-starter/internal/gamelogic"
 	"github.com/bootdotdev/learn-pub-sub-starter/internal/pubsub"
@@ -37,9 +35,43 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not subscribe to pause: %v", err)
 	}
-	fmt.Printf("Queue %v declared and bound!\n", queue.Name)
+	fmt.Printf("Pause Queue %v declared and bound!\n", queue.Name)
 
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt)
-	<-signalChan
+	gameState := gamelogic.NewGameState(username)
+
+	for {
+		input := gamelogic.GetInput()
+
+		if len(input) == 0 {
+			continue
+		}
+
+		switch input[0] {
+		case "spawn":
+			err = gameState.CommandSpawn(input)
+			if err != nil {
+				fmt.Println("incorrect command use")
+				continue
+			}
+		case "move":
+			_, err := gameState.CommandMove(input)
+			if err != nil {
+				fmt.Println("incorrect command use")
+				continue
+			}
+			fmt.Println("Move command successful")
+		case "help":
+			gamelogic.PrintClientHelp()
+		case "status":
+			gameState.CommandStatus()
+		case "spam":
+			fmt.Println("Spamming not supported yet")
+		case "quit":
+			fmt.Println("Bye Bye!")
+			return
+		default:
+			fmt.Println("Incorrect use of command")
+		}
+
+	}
 }
