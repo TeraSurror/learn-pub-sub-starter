@@ -7,6 +7,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+// PublishJSON sends a message (containing val) to exchagne, which will forward it to a queue identified by key.
 func PublishJSON[T any](ch *amqp.Channel, exchange, key string, val T) error {
 
 	jsonVal, err := json.Marshal(val)

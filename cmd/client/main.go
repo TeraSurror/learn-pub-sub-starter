@@ -50,13 +50,13 @@ func main() {
 		case "spawn":
 			err = gameState.CommandSpawn(input)
 			if err != nil {
-				fmt.Println("incorrect command use")
+				fmt.Println(err)
 				continue
 			}
 		case "move":
 			_, err := gameState.CommandMove(input)
 			if err != nil {
-				fmt.Println("incorrect command use")
+				fmt.Println(err)
 				continue
 			}
 			fmt.Println("Move command successful")
@@ -67,10 +67,10 @@ func main() {
 		case "spam":
 			fmt.Println("Spamming not supported yet")
 		case "quit":
-			fmt.Println("Bye Bye!")
+			gamelogic.PrintQuit()
 			return
 		default:
-			fmt.Println("Incorrect use of command")
+			fmt.Println("unknown command")
 		}
 
 	}

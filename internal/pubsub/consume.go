@@ -11,6 +11,7 @@ const (
 	SimpleQueueTransient
 )
 
+// Declares and Binds a Queue.
 func DeclareAndBind(
 	conn *amqp.Connection,
 	exchange,
