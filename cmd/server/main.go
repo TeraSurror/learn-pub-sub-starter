@@ -13,6 +13,7 @@ import (
 func main() {
 	const rabbitMQConnectionString string = "amqp://guest:guest@localhost:5672/"
 
+	// Create a connection to RabbitMQ server
 	conn, err := amqp.Dial(rabbitMQConnectionString)
 	if err != nil {
 		log.Fatalf("could not connect to the RabbitMQ server: %v\n", err)
@@ -20,25 +21,30 @@ func main() {
 	defer conn.Close()
 	log.Println("Peril game server connected to RabbitMQ!")
 
-	_, queue, err := pubsub.DeclareAndBind(
-		conn,
-		routing.ExchangePerilTopic,
-		routing.GameLogSlug,
-		routing.GameLogSlug+".*",
-		pubsub.SimpleQueueDurable,
-	)
-	if err != nil {
-		log.Fatalf("could not subscribe to pause: %v", err)
-	}
-	fmt.Printf("Queue %v declared and bound!\n", queue.Name)
-
+	// Create a channel to the RabbitMQ server
 	channel, err := conn.Channel()
 	if err != nil {
 		log.Fatalf("could not create channel: %v\n", err)
 	}
 
+	// Subscribe to the game log queue
+	err = pubsub.SubscribeGob(
+		conn,
+		routing.ExchangePerilTopic,
+		routing.GameLogSlug,
+		routing.GameLogSlug+".*",
+		pubsub.SimpleQueueDurable,
+		handlerLogs(),
+	)
+	if err != nil {
+		log.Fatalf("could not subscribe to pause: %v", err)
+	}
+	fmt.Printf("Queue declared and bound!\n")
+
+	// Print Help message
 	gamelogic.PrintServerHelp()
 
+	// Start REPL
 	for {
 		input := gamelogic.GetInput()
 		if len(input) == 0 {
