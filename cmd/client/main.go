@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/bootdotdev/learn-pub-sub-starter/internal/gamelogic"
@@ -112,7 +113,23 @@ func main() {
 		case "status":
 			gameState.CommandStatus()
 		case "spam":
-			fmt.Println("Spamming not supported yet")
+			if len(input) < 2 {
+				fmt.Println("spam command must have word to work")
+				continue
+			}
+			n, err := strconv.Atoi(input[1])
+			if err != nil {
+				fmt.Printf("error: %v\n", err)
+				continue
+			}
+			for i := 0; i < n; i++ {
+				malLog := gamelogic.GetMaliciousLog()
+				err = publishGameLog(publishChannel, username, malLog)
+				if err != nil {
+					fmt.Printf("error: %v\n", err)
+				}
+			}
+
 		case "quit":
 			gamelogic.PrintQuit()
 			return
